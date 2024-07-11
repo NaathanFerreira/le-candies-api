@@ -12,3 +12,72 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Sale      Sale[]
+
+  @@map("clients")
+}
+
+model Candy {
+  id          String     @id @default(uuid())
+  name        String
+  imageUrl    String?    @map("image_url")
+  priceInReal Float
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  SaleItem    SaleItem[]
+
+  @@map("candies")
+}
+
+model Sale {
+  id String @id @default(uuid())
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @map("client_id")
+
+  saleDate    DateTime @default(now()) @map("sale_date")
+  totalAmount Float
+  isPaid      Boolean  @map("is_paid")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  SaleItem SaleItem[]
+  Payment  Payment[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id String @id @default(uuid())
+
+  sale   Sale   @relation(fields: [saleId], references: [id])
+  saleId String @map("sale_id")
+
+  candy   Candy  @relation(fields: [candyId], references: [id])
+  candyId String @map("candy_id")
+
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("sale_itens")
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  sale   Sale   @relation(fields: [saleId], references: [id])
+  saleId String @map("sale_id")
+
+  paymentDate DateTime @default(now()) @map("payment_date")
+
+  amount Float
+
+  @@map("payments")
+}
