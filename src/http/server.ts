@@ -1,4 +1,5 @@
 import fastifyCors from '@fastify/cors'
+import fastifyJwt from '@fastify/jwt'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUI from '@fastify/swagger-ui'
 import fastify from 'fastify'
@@ -8,6 +9,8 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
+
+import { env } from '@/env'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -38,6 +41,10 @@ app.register(fastifySwaggerUI, {
   routePrefix: '/documentation',
 })
 
+app.register(fastifyJwt, {
+  secret: env.JWT_SECRET,
+})
+
 app.register(fastifyCors)
 
 app.get('/', function (request, reply) {
@@ -48,7 +55,7 @@ async function run() {
   await app.ready()
 
   await app.listen({
-    port: 3333,
+    port: env.PORT,
   })
 
   console.log('HTTP Server Running! 🚀')
